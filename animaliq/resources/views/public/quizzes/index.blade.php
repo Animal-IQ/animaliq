@@ -53,8 +53,15 @@
                         <p class="text-xs font-semibold theme-accent uppercase">{{ $quiz->difficulty }} · {{ $quiz->questions_count }} Qs</p>
                         <h2 class="text-lg font-bold theme-text-primary mt-1">{{ $quiz->title }}</h2>
                         <p class="text-sm theme-text-secondary mt-2 line-clamp-2">{{ $quiz->description }}</p>
-                        @if($quiz->duration_minutes)
-                            <p class="text-xs theme-text-secondary mt-2">{{ $quiz->duration_minutes }} min</p>
+                        @php $avail = $quiz->availabilityStatus(); @endphp
+                        @if($avail === 'upcoming')
+                            <p class="text-xs font-medium mt-2 text-amber-600">{{ $quiz->availabilityLabel() }}</p>
+                        @elseif($avail === 'ended')
+                            <p class="text-xs font-medium mt-2 theme-text-secondary">{{ $quiz->availabilityLabel() }}</p>
+                        @elseif($quiz->duration_minutes)
+                            <p class="text-xs theme-text-secondary mt-2">{{ $quiz->duration_minutes }} min · Open now</p>
+                        @else
+                            <p class="text-xs theme-text-secondary mt-2">Open now</p>
                         @endif
                     </div>
                 </a>

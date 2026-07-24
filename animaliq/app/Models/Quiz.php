@@ -85,6 +85,33 @@ class Quiz extends Model
         return true;
     }
 
+    /**
+     * open | upcoming | ended | unpublished
+     */
+    public function availabilityStatus(): string
+    {
+        if ($this->status !== 'published') {
+            return 'unpublished';
+        }
+        if ($this->available_from && $this->available_from->isFuture()) {
+            return 'upcoming';
+        }
+        if ($this->available_until && $this->available_until->isPast()) {
+            return 'ended';
+        }
+
+        return 'open';
+    }
+
+    public function availabilityLabel(): ?string
+    {
+        return match ($this->availabilityStatus()) {
+            'upcoming' => 'Opens ' . $this->available_from->timezone(config('app.timezone'))->format('M j, Y g:i A'),
+            'ended' => 'Closed ' . $this->available_until->timezone(config('app.timezone'))->format('M j, Y g:i A'),
+            default => null,
+        };
+    }
+
     public function userAttemptCount(?int $userId): int
     {
         if (! $userId) {
