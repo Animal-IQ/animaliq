@@ -16,7 +16,8 @@ class QuizController extends Controller
 
     public function index(Request $request)
     {
-        $q = Quiz::availableNow()->withCount('questions');
+        // List all published quizzes; date windows gate starting, not visibility
+        $q = Quiz::published()->withCount('questions');
         if ($search = $request->get('q')) {
             $q->where(function ($query) use ($search) {
                 $query->where('title', 'like', "%{$search}%")
@@ -43,11 +44,12 @@ class QuizController extends Controller
         $quiz->loadCount('questions');
         $user = auth()->user();
         $canAttempt = $quiz->canUserAttempt($user);
+        $availability = $quiz->availabilityLabel();
         $myAttempts = $user
-            ? $quiz->attempts()->where('user_id', $user->id)->where('status', 'completed')->latest()->take(5)->get()
+            ? $quiz->attempts()->where('user_id', $user->id)->whereIn('status', ['completed', 'timed_out'])->latest()->take(5)->get()
             : collect();
 
-        return view('public.quizzes.show', compact('quiz', 'canAttempt', 'myAttempts'));
+        return view('public.quizzes.show', compact('quiz', 'canAttempt', 'myAttempts', 'availability'));
     }
 
     public function start(Request $request, Quiz $quiz)

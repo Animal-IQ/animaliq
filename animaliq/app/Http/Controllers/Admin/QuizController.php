@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewQuizPublishedNotification;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -35,7 +37,15 @@ class QuizController extends Controller
         }
         $data['created_by'] = $request->user()->id;
         $data['slug'] = $data['slug'] ?? null;
+        // Default: require login unless explicitly unchecked
+        if (! $request->has('require_login')) {
+            $data['require_login'] = true;
+        }
         $quiz = Quiz::create($data);
+
+        if ($quiz->status === 'published') {
+            $this->notifyPublished($quiz);
+        }
 
         return redirect()->route('admin.quizzes.edit', $quiz)
             ->with('success', 'Quiz created. Add questions below.');
@@ -54,6 +64,7 @@ class QuizController extends Controller
 
     public function update(Request $request, Quiz $quiz)
     {
+        $wasPublished = $quiz->status === 'published';
         $data = $this->validated($request, $quiz);
         if ($request->hasFile('banner_image')) {
             $data['banner_image'] = $request->file('banner_image')->store('quizzes', 'public');
@@ -63,6 +74,11 @@ class QuizController extends Controller
         }
         $quiz->update($data);
 
+        // Notify every time status becomes published (including re-publish from draft/archived)
+        if (! $wasPublished && $quiz->status === 'published') {
+            $this->notifyPublished($quiz->fresh());
+        }
+
         return back()->with('success', 'Quiz updated.');
     }
 
@@ -71,6 +87,19 @@ class QuizController extends Controller
         $quiz->delete();
 
         return redirect()->route('admin.quizzes.index')->with('success', 'Quiz deleted.');
+    }
+
+    protected function notifyPublished(Quiz $quiz): void
+    {
+        app(NotificationService::class)->broadcast(
+            type: 'quiz',
+            title: 'New Quiz: ' . $quiz->title,
+            body: $quiz->description
+                ? Str::limit(strip_tags($quiz->description), 120)
+                : 'A new quiz is available — log in and take the challenge!',
+            url: route('quizzes.show', $quiz),
+            mailer: fn ($user) => new NewQuizPublishedNotification($quiz, $user->first_name ?: 'there'),
+        );
     }
 
     public function storeQuestion(Request $request, Quiz $quiz)

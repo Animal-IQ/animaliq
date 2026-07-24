@@ -6,8 +6,11 @@ use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizAttemptAnswer;
 use App\Models\QuizQuestion;
+use App\Models\User;
 use App\Models\UserPoint;
+use App\Mail\QuizResultsMail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class QuizScoringService
 {
@@ -82,11 +85,53 @@ class QuizScoringService
             ]);
 
             if (in_array($status, ['completed', 'timed_out'], true) && $attempt->user_id) {
-                $this->awardPoints($attempt->fresh('quiz'));
+                $fresh = $attempt->fresh(['quiz', 'user', 'answers.question']);
+                $this->awardPoints($fresh);
+                $this->emailResults($fresh);
             }
 
             return $attempt->fresh();
         });
+    }
+
+    public function emailResults(QuizAttempt $attempt): void
+    {
+        $quiz = $attempt->quiz;
+        $user = $attempt->user ?? User::find($attempt->user_id);
+        if (! $quiz || ! $user?->email) {
+            return;
+        }
+
+        $order = $attempt->question_order ?: $quiz->questions()->pluck('id')->all();
+        $questions = QuizQuestion::whereIn('id', $order)
+            ->get()
+            ->sortBy(fn ($q) => array_search($q->id, $order))
+            ->values();
+        $answersByQuestion = $attempt->answers->keyBy('quiz_question_id');
+
+        $reviewRows = [];
+        foreach ($questions as $i => $question) {
+            $ans = $answersByQuestion->get($question->id);
+            $reviewRows[] = [
+                'number' => $i + 1,
+                'prompt' => $question->prompt ?: $question->typeLabel(),
+                'status' => ! $ans ? 'Skipped' : ($ans->is_correct ? 'Correct' : 'Incorrect'),
+                'your_answer' => $question->formatUserAnswer($ans?->answer),
+                'correct_answer' => $question->formatCorrectAnswer(),
+                'points' => (int) ($ans?->points_earned ?? 0),
+            ];
+        }
+
+        try {
+            Mail::to($user->email)->queue(new QuizResultsMail(
+                $quiz,
+                $attempt,
+                $user->first_name ?: 'there',
+                $reviewRows
+            ));
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function awardPoints(QuizAttempt $attempt): void

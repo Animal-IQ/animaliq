@@ -78,6 +78,6 @@
 <div class="flex flex-wrap gap-4 text-sm">
     <label class="inline-flex items-center gap-2"><input type="checkbox" name="shuffle_questions" value="1" @checked(old('shuffle_questions', $quiz->shuffle_questions ?? false))> Shuffle questions</label>
     <label class="inline-flex items-center gap-2"><input type="checkbox" name="show_explanations" value="1" @checked(old('show_explanations', $quiz->show_explanations ?? true))> Show explanations</label>
-    <label class="inline-flex items-center gap-2"><input type="checkbox" name="require_login" value="1" @checked(old('require_login', $quiz->require_login ?? true))> Require login</label>
+    <label class="inline-flex items-center gap-2"><input type="checkbox" name="require_login" value="1" @checked(old('require_login', $quiz->require_login ?? true))> Require login <span class="theme-text-secondary">(recommended / default)</span></label>
     <label class="inline-flex items-center gap-2"><input type="checkbox" name="allow_retake" value="1" @checked(old('allow_retake', $quiz->allow_retake ?? true))> Allow retakes</label>
 </div>
