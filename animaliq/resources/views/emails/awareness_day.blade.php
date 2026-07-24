@@ -8,7 +8,7 @@
         @endif
         <p style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#f97316;margin-bottom:8px;">Animal Awareness Day</p>
         <h1 style="font-size:26px;font-weight:800;color:#111;margin:0 0 8px;">🌍 {{ $day->title ?? '' }}</h1>
-        <p style="font-size:15px;color:#555;margin:0;">{{ $day?->celebration_date?->format('F j, Y') }}</p>
+        <p style="font-size:15px;color:#555;margin:0;">{{ $day?->celebration_date?->format('F j') }}</p>
     </div>
 
     <p style="font-size:16px;color:#333;margin-bottom:12px;">Hi {{ $firstName }},</p>

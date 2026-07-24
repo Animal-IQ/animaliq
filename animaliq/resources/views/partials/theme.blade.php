@@ -112,4 +112,116 @@
     @media (min-width: 768px) {
         .admin-sidebar-mobile-overlay { display: none !important; }
     }
+
+    /* Home: transparent nav over full-bleed hero */
+    body.page-home #site-header.header-over-hero {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        background: transparent !important;
+        border-bottom-color: transparent !important;
+        box-shadow: none;
+        transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+    }
+    body.page-home #site-header.header-over-hero .theme-nav-link,
+    body.page-home #site-header.header-over-hero button.theme-nav-link,
+    body.page-home #site-header.header-over-hero #more-dropdown-btn,
+    body.page-home #site-header.header-over-hero #dashboard-dropdown-btn,
+    body.page-home #site-header.header-over-hero #bell-btn {
+        color: #fff !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+    }
+    body.page-home #site-header.header-over-hero .theme-nav-link:hover,
+    body.page-home #site-header.header-over-hero #more-dropdown-btn:hover,
+    body.page-home #site-header.header-over-hero #dashboard-dropdown-btn:hover {
+        color: var(--orange-200) !important;
+    }
+    body.page-home #site-header.header-over-hero .theme-btn-outline {
+        border-color: #fff;
+        color: #fff;
+    }
+    body.page-home #site-header.header-over-hero .theme-btn-outline:hover {
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+    }
+    body.page-home #site-header.header-over-hero .hamburger-btn {
+        border-color: rgba(255,255,255,0.55);
+        color: #fff;
+        background: rgba(0,0,0,0.2);
+    }
+    body.page-home #site-header.header-over-hero #theme-toggle-btn {
+        background: rgba(0,0,0,0.25);
+        border-color: rgba(255,255,255,0.45);
+        color: #fff;
+    }
+    body.page-home #site-header.header-over-hero .logo-brand {
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+    }
+    /* Solid header after scroll */
+    body.page-home #site-header.header-over-hero.header-solid {
+        position: fixed;
+        background: var(--bg-primary) !important;
+        border-bottom: 2px solid var(--accent-orange) !important;
+        box-shadow: 0 4px 20px var(--shadow);
+        backdrop-filter: blur(8px);
+    }
+    body.page-home #site-header.header-over-hero.header-solid .theme-nav-link,
+    body.page-home #site-header.header-over-hero.header-solid button.theme-nav-link,
+    body.page-home #site-header.header-over-hero.header-solid #more-dropdown-btn,
+    body.page-home #site-header.header-over-hero.header-solid #dashboard-dropdown-btn,
+    body.page-home #site-header.header-over-hero.header-solid #bell-btn {
+        color: var(--text-secondary) !important;
+        text-shadow: none;
+    }
+    body.page-home #site-header.header-over-hero.header-solid .theme-nav-link:hover,
+    body.page-home #site-header.header-over-hero.header-solid #more-dropdown-btn:hover {
+        color: var(--accent-orange) !important;
+    }
+    body.page-home #site-header.header-over-hero.header-solid .theme-btn-outline {
+        border-color: var(--accent-orange);
+        color: var(--accent-orange);
+    }
+    body.page-home #site-header.header-over-hero.header-solid .hamburger-btn {
+        border-color: var(--border-color);
+        color: var(--text-primary);
+        background: transparent;
+    }
+    body.page-home #site-header.header-over-hero.header-solid #theme-toggle-btn {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+    body.page-home #site-header.header-over-hero.header-solid .logo-brand {
+        filter: none;
+    }
+
+    /* Full-viewport home hero */
+    .hero-viewport {
+        position: relative;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        height: 100vh;
+        height: 100dvh;
+        min-height: 520px;
+        overflow: hidden;
+    }
+    .hero-viewport .hero-slide {
+        height: 100vh;
+        height: 100dvh;
+        min-height: 520px;
+        width: 100vw;
+    }
+    .hero-viewport .hero-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        max-width: none;
+    }
+    .hero-viewport .hero-slide-content {
+        padding-top: 5rem;
+    }
 </style>

@@ -65,7 +65,18 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Awareness day calendar timezone
+    |--------------------------------------------------------------------------
+    |
+    | Awareness days are annual celebrations matched by month/day. This
+    | timezone defines "today" for matching and for the 08:00 email schedule.
+    |
+    */
+    'awareness_timezone' => env('AWARENESS_TIMEZONE', 'Africa/Nairobi'),
 
     /*
     |--------------------------------------------------------------------------

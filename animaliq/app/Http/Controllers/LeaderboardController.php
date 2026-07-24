@@ -77,6 +77,10 @@ class LeaderboardController extends Controller
             'event_register'          => 'Events registered',
             'donation'                => 'Donations made',
             'share'                   => 'Content shared',
+            'quiz_complete'           => 'Quizzes completed',
+            'quiz_score'              => 'Quiz score bonuses',
+            'quiz_high_score'         => 'Quiz high-score bonuses',
+            'quiz_perfect'            => 'Perfect quiz scores',
         ];
 
         return view('public.leaderboard', compact('rows', 'period', 'myRank', 'myBreakdown', 'actionLabels'));

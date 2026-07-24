@@ -46,7 +46,11 @@
     <div class="max-w-6xl mx-auto">
         <h2 class="text-2xl font-bold theme-text-primary mb-6 reveal">Full Calendar</h2>
         @forelse($allDays as $day)
-        @php $isToday = $day->celebration_date->isToday(); $isPast = $day->celebration_date->isPast() && !$isToday; @endphp
+        @php
+            $isToday = $day->isCelebratingToday();
+            $isPast = $day->isPastThisYear();
+            $daysUntil = $day->daysUntilNext();
+        @endphp
         <article class="theme-card rounded-2xl overflow-hidden mb-6 flex flex-col md:flex-row reveal hover-lift {{ $isToday ? 'ring-2' : '' }}" style="{{ $isToday ? 'ring-color:var(--accent-orange)' : '' }}">
             @if($day->image)
             <div class="md:w-48 h-40 md:h-auto overflow-hidden flex-shrink-0">
@@ -60,11 +64,8 @@
                         <span class="px-2 py-0.5 rounded-full text-xs font-bold" style="background:var(--accent-orange);color:#fff">Today!</span>
                     @elseif($isPast)
                         <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Past</span>
-                    @else
-                        @php $daysUntil = now()->startOfDay()->diffInDays($day->celebration_date->startOfDay(), false); @endphp
-                        @if($daysUntil <= 30)
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium" style="background:var(--bg-warm);color:var(--accent-orange)">In {{ $daysUntil }} days</span>
-                        @endif
+                    @elseif($daysUntil <= 30)
+                        <span class="px-2 py-0.5 rounded-full text-xs font-medium" style="background:var(--bg-warm);color:var(--accent-orange)">In {{ $daysUntil }} days</span>
                     @endif
                 </div>
                 <h3 class="text-xl font-bold theme-text-primary mb-2">{{ $day->title }}</h3>

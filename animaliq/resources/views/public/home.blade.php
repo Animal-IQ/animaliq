@@ -50,33 +50,32 @@
 @section('content')
 @push('styles')
 <style>
-.hero-flush { margin-top: calc(-1.5rem - 1px); }
-@media (min-width: 768px) { .hero-flush { margin-top: calc(-2rem - 1px); } }
+/* Hero sits under absolute header; no top padding offset needed */
 </style>
 @endpush
-    {{-- Full-width hero carousel --}}
-    <section class="hero-full-width hero-flush mb-0 overflow-hidden" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw;">
+    {{-- Full-viewport hero carousel (image under transparent nav) --}}
+    <section class="hero-full-width hero-viewport mb-0" id="home-hero">
         @if($slides->isNotEmpty())
-            <div class="relative">
-                <div id="hero-track" class="flex transition-transform duration-500 ease-out" style="width: {{ $slides->count() * 100 }}vw;">
+            <div class="relative h-full">
+                <div id="hero-track" class="flex h-full transition-transform duration-500 ease-out" style="width: {{ $slides->count() * 100 }}vw;">
                     @foreach($slides as $slide)
-                        <div class="hero-slide flex-shrink-0 w-full min-h-[85vmin] md:min-h-[580px] flex items-center justify-center relative bg-[var(--bg-warm)] {{ $slide->image_path ? 'hero-slide--with-image' : '' }}" style="width: 100vw;">
+                        <div class="hero-slide flex-shrink-0 flex items-center justify-center relative bg-[var(--bg-warm)] {{ $slide->image_path ? 'hero-slide--with-image' : '' }}">
                             @if($slide->image_path)
                                 <div class="absolute inset-0 z-0">
                                     <img src="{{ asset('storage/' . $slide->image_path) }}" alt="{{ $slide->title }}" class="w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-black/40 z-10"></div>
+                                    <div class="absolute inset-0 z-10" style="background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.55) 100%);"></div>
                                 </div>
                             @endif
-                            <div class="hero-slide-content relative z-20 p-6 md:p-12 text-center max-w-4xl mx-auto">
-                                <h1 class="text-3xl md:text-5xl font-bold drop-shadow-md {{ $slide->image_path ? 'text-white' : 'theme-text-primary' }}">{{ $slide->title ?? 'Welcome to Animal IQ' }}</h1>
+                            <div class="hero-slide-content relative z-20 px-6 md:px-12 py-16 text-center max-w-4xl mx-auto">
+                                <h1 class="text-4xl md:text-6xl font-bold drop-shadow-lg {{ $slide->image_path ? 'text-white' : 'theme-text-primary' }}">{{ $slide->title ?? 'Welcome to Animal IQ' }}</h1>
                                 @if($slide->subtitle)
-                                    <p class="mt-4 text-lg md:text-xl drop-shadow-sm {{ $slide->image_path ? 'text-white/90' : 'theme-text-secondary' }}">{{ $slide->subtitle }}</p>
+                                    <p class="mt-4 text-lg md:text-2xl drop-shadow-md {{ $slide->image_path ? 'text-white/95' : 'theme-text-secondary' }}">{{ $slide->subtitle }}</p>
                                 @endif
                                 @if($slide->cta_text && $slide->cta_link)
-                                    <div class="flex flex-wrap gap-3 justify-center mt-6">
-                                        <a href="{{ $slide->cta_link }}" class="theme-btn px-6 py-3">{{ $slide->cta_text }}</a>
+                                    <div class="flex flex-wrap gap-3 justify-center mt-8">
+                                        <a href="{{ $slide->cta_link }}" class="theme-btn px-8 py-3.5 text-base">{{ $slide->cta_text }}</a>
                                         @if($slide->cta_secondary_text && $slide->cta_secondary_link)
-                                            <a href="{{ $slide->cta_secondary_link }}" class="theme-btn-outline px-6 py-3 {{ $slide->image_path ? 'border-white text-white hover:bg-white/20' : '' }}">{{ $slide->cta_secondary_text }}</a>
+                                            <a href="{{ $slide->cta_secondary_link }}" class="theme-btn-outline px-8 py-3.5 text-base {{ $slide->image_path ? 'border-white text-white hover:bg-white/20' : '' }}">{{ $slide->cta_secondary_text }}</a>
                                         @endif
                                     </div>
                                 @endif
@@ -91,7 +90,7 @@
                     <button type="button" class="hero-arrow hero-arrow-next absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Next slide">
                         <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </button>
-                    <div class="absolute bottom-4 left-0 right-0 z-30 flex justify-center gap-2">
+                    <div class="absolute bottom-6 left-0 right-0 z-30 flex justify-center gap-2">
                         @foreach($slides as $i => $slide)
                             <button type="button" class="hero-dot w-2.5 h-2.5 rounded-full border-2 border-white/80 bg-white/40 hover:bg-white/70 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-orange)]" aria-label="Go to slide {{ $i + 1 }}" data-index="{{ $i }}"></button>
                         @endforeach
@@ -99,10 +98,10 @@
                 @endif
             </div>
         @else
-            <div class="min-h-[85vmin] md:min-h-[580px] flex items-center justify-center theme-bg-warm border-b theme-border">
-                <div class="p-8 text-center">
-                    <h1 class="text-3xl md:text-5xl font-bold theme-text-primary">The Wild Window</h1>
-                    <p class="mt-4 text-lg theme-text-secondary">Connecting youth with wildlife and environmental education.</p>
+            <div class="h-full min-h-[520px] flex items-center justify-center theme-bg-warm">
+                <div class="p-8 text-center pt-24">
+                    <h1 class="text-4xl md:text-6xl font-bold theme-text-primary">The Wild Window</h1>
+                    <p class="mt-4 text-lg md:text-xl theme-text-secondary">Connecting youth with wildlife and environmental education.</p>
                 </div>
             </div>
         @endif
@@ -114,30 +113,107 @@
         var track = document.getElementById('hero-track');
         if (!track) return;
         var wrapper = track.closest('.hero-full-width');
-        var dots = document.querySelectorAll('.hero-dot');
+        var dots = Array.prototype.slice.call(document.querySelectorAll('.hero-dot'));
         var prevBtn = wrapper.querySelector('.hero-arrow-prev');
         var nextBtn = wrapper.querySelector('.hero-arrow-next');
-        var total = track.querySelectorAll('.hero-slide').length;
-        var current = 0;
+        var slides = Array.prototype.slice.call(track.querySelectorAll('.hero-slide'));
+        var realTotal = slides.length;
+        if (realTotal < 2) return;
+
+        // Clone first/last for seamless endless loop in one direction
+        var firstClone = slides[0].cloneNode(true);
+        var lastClone = slides[realTotal - 1].cloneNode(true);
+        firstClone.setAttribute('aria-hidden', 'true');
+        lastClone.setAttribute('aria-hidden', 'true');
+        track.appendChild(firstClone);
+        track.insertBefore(lastClone, slides[0]);
+
+        var allSlides = track.querySelectorAll('.hero-slide');
+        var trackLen = allSlides.length; // realTotal + 2
+        track.style.width = (trackLen * 100) + 'vw';
+
+        // Index in the extended track: 0 = lastClone, 1..realTotal = real slides, trackLen-1 = firstClone
+        var current = 1;
         var intervalId = null;
-        function goTo(i) {
-            current = (i + total) % total;
-            track.style.transform = 'translateX(-' + (current * 100) + 'vw)';
-            dots.forEach(function(d, j) { d.classList.toggle('bg-white', j === current); d.classList.toggle('bg-white/40', j !== current); });
+        var animating = false;
+        var TRANSITION = 'transform 0.5s ease-out';
+
+        function setTransform(i, withAnim) {
+            track.style.transition = withAnim ? TRANSITION : 'none';
+            track.style.transform = 'translateX(-' + (i * 100) + 'vw)';
         }
+
+        function updateDots() {
+            var realIndex = ((current - 1) % realTotal + realTotal) % realTotal;
+            if (current === 0) realIndex = realTotal - 1;
+            if (current === trackLen - 1) realIndex = 0;
+            dots.forEach(function(d, j) {
+                d.classList.toggle('bg-white', j === realIndex);
+                d.classList.toggle('bg-white/40', j !== realIndex);
+            });
+        }
+
+        function goTo(i, withAnim) {
+            if (withAnim === undefined) withAnim = true;
+            current = i;
+            setTransform(current, withAnim);
+            updateDots();
+        }
+
+        function next() {
+            if (animating) return;
+            animating = true;
+            goTo(current + 1, true);
+        }
+
+        function prev() {
+            if (animating) return;
+            animating = true;
+            goTo(current - 1, true);
+        }
+
+        track.addEventListener('transitionend', function(e) {
+            if (e.propertyName !== 'transform') return;
+            // After sliding onto the first-clone at the end → jump to real first (no animation)
+            if (current === trackLen - 1) {
+                goTo(1, false);
+            }
+            // After sliding onto the last-clone at the start → jump to real last (no animation)
+            if (current === 0) {
+                goTo(realTotal, false);
+            }
+            // Force reflow so next transition works after disabling transition
+            void track.offsetWidth;
+            track.style.transition = TRANSITION;
+            animating = false;
+        });
+
         function startAuto() {
             if (intervalId) clearInterval(intervalId);
-            intervalId = setInterval(function() { goTo(current + 1); }, 5000);
+            intervalId = setInterval(next, 5000);
         }
+
         dots.forEach(function(dot, i) {
-            dot.addEventListener('click', function() { goTo(i); startAuto(); });
+            dot.addEventListener('click', function() {
+                if (animating) return;
+                animating = true;
+                goTo(i + 1, true);
+                startAuto();
+            });
         });
-        if (prevBtn) prevBtn.addEventListener('click', function() { goTo(current - 1); startAuto(); });
-        if (nextBtn) nextBtn.addEventListener('click', function() { goTo(current + 1); startAuto(); });
-        goTo(0);
+        if (prevBtn) prevBtn.addEventListener('click', function() { prev(); startAuto(); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { next(); startAuto(); });
+
+        // Start on real first slide (index 1 after prepended clone)
+        goTo(1, false);
+        void track.offsetWidth;
+        track.style.transition = TRANSITION;
         startAuto();
-        wrapper.addEventListener('mouseenter', function() { if (intervalId) { clearInterval(intervalId); intervalId = null; } });
-        wrapper.addEventListener('mouseleave', function() { if (total > 1) startAuto(); });
+
+        wrapper.addEventListener('mouseenter', function() {
+            if (intervalId) { clearInterval(intervalId); intervalId = null; }
+        });
+        wrapper.addEventListener('mouseleave', function() { startAuto(); });
     })();
     </script>
     @endif

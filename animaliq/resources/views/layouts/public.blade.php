@@ -16,8 +16,8 @@
     @include('partials.animations')
     @stack('styles')
 </head>
-<body class="theme-bg-primary theme-text-primary min-h-screen antialiased">
-    <header class="theme-bg-primary theme-header-border sticky top-0 z-30">
+<body class="theme-bg-primary theme-text-primary min-h-screen antialiased {{ request()->routeIs('home') ? 'page-home' : '' }}">
+    <header id="site-header" class="theme-bg-primary theme-header-border sticky top-0 z-40 {{ request()->routeIs('home') ? 'header-over-hero' : '' }}">
         <nav class="container mx-auto px-4 py-3 md:py-4 flex flex-wrap items-center justify-between gap-2">
             <a href="{{ route('home') }}" class="logo-brand text-xl font-semibold flex items-center gap-2 shrink-0" style="background: linear-gradient(135deg, var(--orange-200), var(--orange-600)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
                 @php $siteLogo = \App\Models\SiteSetting::getByKey('site_logo'); @endphp
@@ -39,7 +39,7 @@
                     {{-- "More" dropdown --}}
                     <li class="relative" id="more-dropdown-wrap">
                         @php
-                            $moreActive = request()->routeIs('awareness-days.*') || request()->routeIs('podcasts.*') || request()->routeIs('forum.*') || request()->routeIs('donations.*') || request()->routeIs('store.*');
+                            $moreActive = request()->routeIs('awareness-days.*') || request()->routeIs('podcasts.*') || request()->routeIs('forum.*') || request()->routeIs('quizzes.*') || request()->routeIs('donations.*') || request()->routeIs('store.*');
                         @endphp
                         <button type="button" id="more-dropdown-btn"
                             class="inline-flex items-center gap-1 theme-nav-link"
@@ -52,6 +52,7 @@
                             <a href="{{ route('awareness-days.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm theme-text-primary hover:bg-[var(--bg-warm)] {{ request()->routeIs('awareness-days.*') ? 'font-semibold' : '' }}" style="{{ request()->routeIs('awareness-days.*') ? 'color:var(--accent-orange);' : '' }}">Awareness Days</a>
                             <a href="{{ route('podcasts.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm theme-text-primary hover:bg-[var(--bg-warm)] {{ request()->routeIs('podcasts.*') ? 'font-semibold' : '' }}" style="{{ request()->routeIs('podcasts.*') ? 'color:var(--accent-orange);' : '' }}">Podcasts</a>
                             <a href="{{ route('forum.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm theme-text-primary hover:bg-[var(--bg-warm)] {{ request()->routeIs('forum.*') ? 'font-semibold' : '' }}" style="{{ request()->routeIs('forum.*') ? 'color:var(--accent-orange);' : '' }}">Forum</a>
+                            <a href="{{ route('quizzes.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm theme-text-primary hover:bg-[var(--bg-warm)] {{ request()->routeIs('quizzes.*') ? 'font-semibold' : '' }}" style="{{ request()->routeIs('quizzes.*') ? 'color:var(--accent-orange);' : '' }}">Quizzes</a>
                             <div class="border-t theme-border my-1"></div>
                             <a href="{{ route('donations.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium hover:bg-[var(--bg-warm)] {{ request()->routeIs('donations.*') ? 'font-semibold' : '' }}" style="color:var(--accent-orange);">Donate</a>
                             <a href="{{ route('store.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm theme-text-primary hover:bg-[var(--bg-warm)] {{ request()->routeIs('store.*') ? 'font-semibold' : '' }}" style="{{ request()->routeIs('store.*') ? 'color:var(--accent-orange);' : '' }}">Store</a>
@@ -138,6 +139,7 @@
                 <li>@include('partials.nav-link', ['route' => route('awareness-days.index'), 'label' => 'Awareness Days', 'icon' => 'events', 'class' => 'mobile-nav-link flex items-center gap-1.5 px-4 py-3 rounded-lg theme-text-primary'])</li>
                 <li>@include('partials.nav-link', ['route' => route('podcasts.index'), 'label' => 'Podcasts', 'icon' => 'blog', 'class' => 'mobile-nav-link flex items-center gap-1.5 px-4 py-3 rounded-lg theme-text-primary'])</li>
                 <li>@include('partials.nav-link', ['route' => route('forum.index'), 'label' => 'Forum', 'icon' => 'community', 'class' => 'mobile-nav-link flex items-center gap-1.5 px-4 py-3 rounded-lg theme-text-primary'])</li>
+                <li>@include('partials.nav-link', ['route' => route('quizzes.index'), 'label' => 'Quizzes', 'icon' => 'research', 'class' => 'mobile-nav-link flex items-center gap-1.5 px-4 py-3 rounded-lg theme-text-primary'])</li>
                 <li>@include('partials.nav-link', ['route' => route('donations.index'), 'label' => 'Donate', 'icon' => 'donate', 'class' => 'mobile-nav-link flex items-center gap-1.5 px-4 py-3 rounded-lg theme-accent font-medium'])</li>
                 <li>@include('partials.nav-link', ['route' => route('store.index'), 'label' => 'Store', 'icon' => 'store', 'class' => 'mobile-nav-link flex items-center gap-1.5 px-4 py-3 rounded-lg theme-text-primary'])</li>
                 <li>@include('partials.nav-link', ['route' => route('leaderboard'), 'label' => 'Leaderboard', 'icon' => 'community', 'class' => 'mobile-nav-link flex items-center gap-1.5 px-4 py-3 rounded-lg theme-text-primary'])</li>
@@ -179,7 +181,7 @@
             </ul>
         </div>
     </header>
-    <main class="container mx-auto px-4 py-6 md:py-8 theme-text-primary min-w-0 main-enter">
+    <main class="container mx-auto px-4 theme-text-primary min-w-0 main-enter {{ request()->routeIs('home') ? 'pt-0 pb-6 md:pb-8' : 'py-6 md:py-8' }}">
         @if (session('success'))
             <div class="mb-4 p-4 rounded theme-alert-success">{{ session('success') }}</div>
         @endif
@@ -240,6 +242,7 @@
                         <li><a href="{{ route('blog.index') }}" class="theme-nav-link">Blog</a></li>
                         <li><a href="{{ route('podcasts.index') }}" class="theme-nav-link">Podcasts</a></li>
                         <li><a href="{{ route('forum.index') }}" class="theme-nav-link">Forum</a></li>
+                        <li><a href="{{ route('quizzes.index') }}" class="theme-nav-link">Quizzes</a></li>
                         <li><a href="{{ route('donations.index') }}" class="theme-nav-link">Donate</a></li>
                         <li><a href="{{ route('store.index') }}" class="theme-nav-link">Store</a></li>
                     </ul>
@@ -464,5 +467,25 @@
     </script>
     @stack('scripts')
     @include('partials.share-script')
+    @if(request()->routeIs('home'))
+    <script>
+    (function() {
+        var header = document.getElementById('site-header');
+        var hero = document.getElementById('home-hero');
+        if (!header || !header.classList.contains('header-over-hero')) return;
+        function updateHeader() {
+            var threshold = hero ? Math.max(80, (hero.offsetHeight || window.innerHeight) * 0.15) : 80;
+            if (window.scrollY > threshold) {
+                header.classList.add('header-solid');
+            } else {
+                header.classList.remove('header-solid');
+            }
+        }
+        updateHeader();
+        window.addEventListener('scroll', updateHeader, { passive: true });
+        window.addEventListener('resize', updateHeader);
+    })();
+    </script>
+    @endif
 </body>
 </html>

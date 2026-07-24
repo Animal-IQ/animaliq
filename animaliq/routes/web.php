@@ -32,6 +32,8 @@ use App\Http\Controllers\Admin\AwarenessDayController as AdminAwarenessDayContro
 use App\Http\Controllers\Admin\PodcastController as AdminPodcastController;
 use App\Http\Controllers\Admin\ForumController as AdminForumController;
 use App\Http\Controllers\Admin\TeamMemberController as AdminTeamMemberController;
+use App\Http\Controllers\Admin\QuizController as AdminQuizController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -74,6 +76,14 @@ Route::post('/share', function (\Illuminate\Http\Request $request) {
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
 Route::get('/awareness-days', [AwarenessDaysController::class, 'index'])->name('awareness-days.index');
 Route::get('/podcasts', [PodcastsController::class, 'index'])->name('podcasts.index');
+
+Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes.index');
+Route::get('/quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
+Route::post('/quizzes/{quiz}/start', [QuizController::class, 'start'])->name('quizzes.start');
+Route::get('/quizzes/{quiz}/attempts/{attempt}', [QuizController::class, 'play'])->name('quizzes.play');
+Route::post('/quizzes/{quiz}/attempts/{attempt}/answer', [QuizController::class, 'answer'])->name('quizzes.answer');
+Route::post('/quizzes/{quiz}/attempts/{attempt}/finish', [QuizController::class, 'finish'])->name('quizzes.finish');
+Route::get('/quizzes/{quiz}/attempts/{attempt}/result', [QuizController::class, 'result'])->name('quizzes.result');
 
 // Blog engagement (auth required)
 Route::middleware('auth')->group(function () {
@@ -180,6 +190,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('podcasts', AdminPodcastController::class);
     Route::get('forum', [AdminForumController::class, 'index'])->name('forum.index');
     Route::delete('forum/{forum}', [AdminForumController::class, 'destroy'])->name('forum.destroy');
+    Route::post('quizzes/{quiz}/questions', [AdminQuizController::class, 'storeQuestion'])->name('quizzes.questions.store');
+    Route::put('quizzes/{quiz}/questions/{question}', [AdminQuizController::class, 'updateQuestion'])->name('quizzes.questions.update');
+    Route::delete('quizzes/{quiz}/questions/{question}', [AdminQuizController::class, 'destroyQuestion'])->name('quizzes.questions.destroy');
+    Route::post('quizzes/{quiz}/questions/reorder', [AdminQuizController::class, 'reorderQuestions'])->name('quizzes.questions.reorder');
+    Route::resource('quizzes', AdminQuizController::class);
 });
 
 Route::get('/run-backfill-points', function () {

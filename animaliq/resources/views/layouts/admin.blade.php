@@ -71,6 +71,9 @@
                 @if(in_array('forum', $adminSections))
                 <li><a href="{{ route('admin.forum.index') }}" class="block px-3 py-2 rounded @if(request()->routeIs('admin.forum.*')) active @endif">Forum Posts</a></li>
                 @endif
+                @if(in_array('quizzes', $adminSections))
+                <li><a href="{{ route('admin.quizzes.index') }}" class="block px-3 py-2 rounded @if(request()->routeIs('admin.quizzes.*')) active @endif">Quizzes</a></li>
+                @endif
                 <li class="pt-2 mt-2 border-t theme-border"><span class="px-3 text-xs font-semibold group-label uppercase">Settings &amp; Site</span></li>
                 @if(in_array('settings', $adminSections))
                 <li><a href="{{ route('admin.settings.sections', 'mission') }}" class="block px-3 py-2 rounded @if(request()->routeIs('admin.settings.sections') && request()->route('section') === 'mission') active @endif">Mission &amp; Vision</a></li>

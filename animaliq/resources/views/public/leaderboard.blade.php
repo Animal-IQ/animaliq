@@ -35,6 +35,10 @@ $pointInfo = [
     'event_register'          => ['label' => 'Registering for an event',            'pts' => 8],
     'donation'                => ['label' => 'Making a donation',                   'pts' => 15],
     'share'                   => ['label' => 'Sharing content',                     'pts' => 3],
+    'quiz_complete'           => ['label' => 'Completing a quiz',                   'pts' => 8],
+    'quiz_score'              => ['label' => 'Quiz score bonus (up to 20)',         'pts' => 20],
+    'quiz_high_score'         => ['label' => 'Passing a quiz (high score)',         'pts' => 10],
+    'quiz_perfect'            => ['label' => 'Perfect quiz score (100%)',           'pts' => 15],
 ];
 @endphp
 

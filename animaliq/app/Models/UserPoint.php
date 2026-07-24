@@ -50,17 +50,31 @@ class UserPoint extends Model
             'donation'               => 15,
             // Sharing
             'share'                  => 3,
+            // Quizzes
+            'quiz_complete'          => 8,
+            'quiz_score'             => 0, // dynamic override
+            'quiz_high_score'        => 10,
+            'quiz_perfect'           => 15,
             default                  => 0,
         };
     }
 
     /**
      * Record a point event, ignoring duplicates silently.
+     * Pass $pointsOverride to store a custom amount (e.g. quiz score scaling).
      */
-    public static function record(int $userId, string $action, string $sourceType = null, int $sourceId = null, \Carbon\Carbon $occurredAt = null): void
-    {
-        $points = self::pointsFor($action);
-        if ($points === 0) return;
+    public static function record(
+        int $userId,
+        string $action,
+        string $sourceType = null,
+        int $sourceId = null,
+        \Carbon\Carbon $occurredAt = null,
+        ?int $pointsOverride = null
+    ): void {
+        $points = $pointsOverride ?? self::pointsFor($action);
+        if ($points === 0) {
+            return;
+        }
 
         try {
             self::firstOrCreate(
