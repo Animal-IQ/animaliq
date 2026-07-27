@@ -146,4 +146,33 @@ class Quiz extends Model
     {
         return QuizQuestion::TYPES;
     }
+
+    /**
+     * Best completed attempt per logged-in user for this quiz.
+     * Ranked by percentage, then score, then faster time, then earlier finish.
+     */
+    public function rankings(int $limit = 25)
+    {
+        $attempts = $this->attempts()
+            ->with('user:id,first_name,last_name,profile_photo')
+            ->whereNotNull('user_id')
+            ->whereIn('status', ['completed', 'timed_out'])
+            ->orderByDesc('percentage')
+            ->orderByDesc('score')
+            ->orderByRaw('CASE WHEN time_spent_seconds IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('time_spent_seconds')
+            ->orderBy('completed_at')
+            ->get();
+
+        return $attempts
+            ->unique('user_id')
+            ->values()
+            ->take($limit)
+            ->values()
+            ->map(function (QuizAttempt $attempt, int $index) {
+                $attempt->rank = $index + 1;
+
+                return $attempt;
+            });
+    }
 }
