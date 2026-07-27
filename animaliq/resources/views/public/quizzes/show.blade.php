@@ -72,5 +72,11 @@
             </ul>
         </section>
     @endif
+
+    @include('public.quizzes.partials.rankings', [
+        'rankings' => $rankings,
+        'myRank' => $myRank,
+        'heading' => 'Rankings for this quiz',
+    ])
 </div>
 @endsection

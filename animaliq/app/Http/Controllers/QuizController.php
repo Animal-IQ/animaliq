@@ -49,7 +49,18 @@ class QuizController extends Controller
             ? $quiz->attempts()->where('user_id', $user->id)->whereIn('status', ['completed', 'timed_out'])->latest()->take(5)->get()
             : collect();
 
-        return view('public.quizzes.show', compact('quiz', 'canAttempt', 'myAttempts', 'availability'));
+        $allBest = $quiz->rankings(500);
+        $rankings = $allBest->take(25)->values();
+        $myRank = $user ? $allBest->firstWhere('user_id', $user->id)?->rank : null;
+
+        return view('public.quizzes.show', compact(
+            'quiz',
+            'canAttempt',
+            'myAttempts',
+            'availability',
+            'rankings',
+            'myRank'
+        ));
     }
 
     public function start(Request $request, Quiz $quiz)
@@ -207,7 +218,20 @@ class QuizController extends Controller
             ->values();
         $answersByQuestion = $attempt->answers->keyBy('quiz_question_id');
 
-        return view('public.quizzes.result', compact('quiz', 'attempt', 'questions', 'answersByQuestion'));
+        $allBest = $quiz->rankings(500);
+        $rankings = $allBest->take(25)->values();
+        $myRank = $attempt->user_id
+            ? $allBest->firstWhere('user_id', $attempt->user_id)?->rank
+            : null;
+
+        return view('public.quizzes.result', compact(
+            'quiz',
+            'attempt',
+            'questions',
+            'answersByQuestion',
+            'rankings',
+            'myRank'
+        ));
     }
 
     protected function authorizeAttempt(QuizAttempt $attempt): void

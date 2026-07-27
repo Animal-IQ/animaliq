@@ -33,6 +33,14 @@
         </div>
     </div>
 
+    @include('public.quizzes.partials.rankings', [
+        'rankings' => $rankings,
+        'myRank' => $myRank,
+        'highlightUserId' => $attempt->user_id,
+        'heading' => 'How you rank',
+        'sectionClass' => 'mb-12 text-left',
+    ])
+
     <section class="text-left">
         <h2 class="text-xl font-bold theme-text-primary mb-4">Answer review</h2>
         @foreach($questions as $index => $question)
