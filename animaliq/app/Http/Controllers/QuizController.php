@@ -41,6 +41,13 @@ class QuizController extends Controller
     public function show(Quiz $quiz)
     {
         abort_unless($quiz->status === 'published', 404);
+        if (blank($quiz->slug)) {
+            $quiz->slug = null;
+            $quiz->save();
+            $quiz->refresh();
+
+            return redirect()->route('quizzes.show', $quiz);
+        }
         $quiz->loadCount('questions');
         $user = auth()->user();
         $canAttempt = $quiz->canUserAttempt($user);

@@ -7,14 +7,19 @@
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
             <h1 class="text-2xl font-bold theme-text-primary">{{ $quiz->title }}</h1>
-            <p class="text-sm theme-text-secondary mt-1">Share link: <a href="{{ route('quizzes.show', $quiz) }}" class="theme-link" target="_blank">{{ route('quizzes.show', $quiz) }}</a></p>
+            <p class="text-sm theme-text-secondary mt-1">Share link: <a href="{{ route('quizzes.show', $quiz->slug ?: $quiz->id) }}" class="theme-link" target="_blank">{{ url('/quizzes/' . ($quiz->slug ?: $quiz->id)) }}</a></p>
         </div>
         <a href="{{ route('admin.quizzes.index') }}" class="theme-btn-outline text-sm">Back</a>
     </div>
 
-    <form method="POST" action="{{ route('admin.quizzes.update', $quiz) }}" enctype="multipart/form-data" class="theme-card rounded-2xl p-6 space-y-4">
+    <form method="POST" action="{{ route('admin.quizzes.update', $quiz->id) }}" enctype="multipart/form-data" class="theme-card rounded-2xl p-6 space-y-4">
         @csrf @method('PUT')
         @include('admin.quizzes._form')
+        @if ($errors->any())
+            <div class="theme-alert-error rounded p-3 text-sm">
+                <ul class="list-disc pl-4">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+            </div>
+        @endif
         <button type="submit" class="theme-btn">Save quiz settings</button>
     </form>
 
@@ -29,7 +34,7 @@
                             <p class="font-medium theme-text-primary">{{ $question->prompt ?: Str::limit(json_encode($question->payload), 80) }}</p>
                             <p class="text-xs theme-text-secondary">{{ $question->points }} pts · {{ $question->difficulty ?? $quiz->difficulty }}</p>
                         </div>
-                        <form method="POST" action="{{ route('admin.quizzes.questions.destroy', [$quiz, $question]) }}" onsubmit="return confirm('Remove question?')">
+                        <form method="POST" action="{{ route('admin.quizzes.questions.destroy', [$quiz->id, $question]) }}" onsubmit="return confirm('Remove question?')">
                             @csrf @method('DELETE')
                             <button type="submit" class="text-sm text-red-600">Remove</button>
                         </form>
@@ -41,8 +46,13 @@
         </div>
 
         <h3 class="font-bold theme-text-primary mb-3">Add question</h3>
-        <form method="POST" action="{{ route('admin.quizzes.questions.store', $quiz) }}" enctype="multipart/form-data" class="space-y-4" id="question-form">
+        <form method="POST" action="{{ route('admin.quizzes.questions.store', $quiz->id) }}" enctype="multipart/form-data" class="space-y-4" id="question-form">
             @csrf
+            @if ($errors->any())
+                <div class="theme-alert-error rounded p-3 text-sm">
+                    <ul class="list-disc pl-4">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+                </div>
+            @endif
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium mb-1">Question type *</label>

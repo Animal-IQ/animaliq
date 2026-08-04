@@ -8,12 +8,33 @@ use App\Models\Quiz;
 use App\Models\QuizQuestion;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class QuizController extends Controller
 {
     public function index()
     {
+        try {
+            Quiz::query()
+                ->where(function ($q) {
+                    $q->whereNull('slug')->orWhere('slug', '');
+                })
+                ->limit(50)
+                ->get()
+                ->each(function (Quiz $quiz) {
+                    try {
+                        $quiz->slug = null;
+                        $quiz->save();
+                    } catch (\Throwable $e) {
+                        Log::warning('Quiz slug repair failed for #'.$quiz->id.': '.$e->getMessage());
+                    }
+                });
+        } catch (\Throwable $e) {
+            Log::warning('Quiz slug repair skipped: '.$e->getMessage());
+        }
+
         $quizzes = Quiz::withCount(['questions', 'attempts'])
             ->latest()
             ->paginate(15);
@@ -33,26 +54,53 @@ class QuizController extends Controller
     {
         $data = $this->validated($request);
         if ($request->hasFile('banner_image')) {
-            $data['banner_image'] = $request->file('banner_image')->store('quizzes', 'public');
+            try {
+                $data['banner_image'] = $request->file('banner_image')->store('quizzes', 'public');
+            } catch (\Throwable $e) {
+                Log::error('Quiz banner upload failed: '.$e->getMessage());
+
+                return back()->withInput()->with('error', 'Banner image could not be uploaded. Try a smaller JPG/PNG (max 4MB).');
+            }
         }
         $data['created_by'] = $request->user()->id;
-        $data['slug'] = $data['slug'] ?? null;
+        if (blank($data['slug'] ?? null)) {
+            unset($data['slug']); // let HasSlug generate from title
+        }
         // Default: require login unless explicitly unchecked
         if (! $request->has('require_login')) {
             $data['require_login'] = true;
         }
-        $quiz = Quiz::create($data);
+
+        try {
+            $quiz = Quiz::create($data);
+        } catch (\Throwable $e) {
+            Log::error('Quiz create failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return back()->withInput()->with('error', 'Could not create the quiz. Please try again with a different title/slug.');
+        }
 
         if ($quiz->status === 'published') {
             $this->notifyPublished($quiz);
         }
 
-        return redirect()->route('admin.quizzes.edit', $quiz)
+        return redirect()->route('admin.quizzes.edit', $quiz->id)
             ->with('success', 'Quiz created. Add questions below.');
+    }
+
+    public function show(Quiz $quiz)
+    {
+        return redirect()->route('admin.quizzes.edit', $quiz->id);
     }
 
     public function edit(Quiz $quiz)
     {
+        // Repair blank slugs so edit/public links keep working
+        if (blank($quiz->slug)) {
+            $quiz->slug = null;
+            $quiz->save();
+            $quiz->refresh();
+        }
+
         $quiz->load(['questions' => fn ($q) => $q->orderBy('display_order')]);
 
         return view('admin.quizzes.edit', [
@@ -67,15 +115,31 @@ class QuizController extends Controller
         $wasPublished = $quiz->status === 'published';
         $data = $this->validated($request, $quiz);
         if ($request->hasFile('banner_image')) {
-            $data['banner_image'] = $request->file('banner_image')->store('quizzes', 'public');
+            try {
+                $data['banner_image'] = $request->file('banner_image')->store('quizzes', 'public');
+            } catch (\Throwable $e) {
+                Log::error('Quiz banner upload failed: '.$e->getMessage());
+
+                return back()->withInput()->with('error', 'Banner image could not be uploaded. Try a smaller JPG/PNG (max 4MB).');
+            }
         }
         if ($request->boolean('remove_banner')) {
             $data['banner_image'] = null;
         }
-        $quiz->update($data);
+        if (blank($data['slug'] ?? null)) {
+            unset($data['slug']);
+        }
+
+        try {
+            $quiz->update($data);
+        } catch (\Throwable $e) {
+            Log::error('Quiz update failed: '.$e->getMessage());
+
+            return back()->withInput()->with('error', 'Could not save the quiz. Check the title/slug and try again.');
+        }
 
         // Notify every time status becomes published (including re-publish from draft/archived)
-        if (! $wasPublished && $quiz->status === 'published') {
+        if (! $wasPublished && $quiz->fresh()->status === 'published') {
             $this->notifyPublished($quiz->fresh());
         }
 
@@ -91,26 +155,38 @@ class QuizController extends Controller
 
     protected function notifyPublished(Quiz $quiz): void
     {
-        app(NotificationService::class)->broadcast(
-            type: 'quiz',
-            title: 'New Quiz: ' . $quiz->title,
-            body: $quiz->description
-                ? Str::limit(strip_tags($quiz->description), 120)
-                : 'A new quiz is available — log in and take the challenge!',
-            url: route('quizzes.show', $quiz),
-            mailer: fn ($user) => new NewQuizPublishedNotification($quiz, $user->first_name ?: 'there'),
-        );
+        try {
+            app(NotificationService::class)->broadcast(
+                type: 'quiz',
+                title: 'New Quiz: ' . $quiz->title,
+                body: $quiz->description
+                    ? Str::limit(strip_tags($quiz->description), 120)
+                    : 'A new quiz is available — log in and take the challenge!',
+                url: route('quizzes.show', $quiz),
+                mailer: fn ($user) => new NewQuizPublishedNotification($quiz, $user->first_name ?: 'there'),
+            );
+        } catch (\Throwable $e) {
+            // Never block creating/updating a quiz because of mail/notification failures
+            Log::error('Quiz publish notification failed: '.$e->getMessage());
+        }
     }
 
     public function storeQuestion(Request $request, Quiz $quiz)
     {
         $data = $this->validatedQuestion($request);
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('quizzes/questions', 'public');
+            try {
+                $data['image_path'] = $request->file('image')->store('quizzes/questions', 'public');
+            } catch (\Throwable $e) {
+                Log::error('Quiz question image upload failed: '.$e->getMessage());
+
+                return back()->withInput()->with('error', 'Question image could not be uploaded. Try a smaller JPG/PNG (max 4MB).');
+            }
         }
         $data['quiz_id'] = $quiz->id;
-        $data['display_order'] = $quiz->questions()->max('display_order') + 1;
+        $data['display_order'] = (int) $quiz->questions()->max('display_order') + 1;
         $data['payload'] = $this->buildPayload($request, $data['type']);
+        unset($data['image']);
         QuizQuestion::create($data);
 
         return back()->with('success', 'Question added.');
@@ -151,7 +227,12 @@ class QuizController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:200',
-            'slug' => 'nullable|string|max:200|unique:quizzes,slug,' . ($quiz?->id ?? 'NULL'),
+            'slug' => [
+                'nullable',
+                'string',
+                'max:200',
+                Rule::unique('quizzes', 'slug')->ignore($quiz?->id),
+            ],
             'description' => 'nullable|string',
             'banner_image' => 'nullable|image|max:4096',
             'difficulty' => 'required|in:easy,medium,expert',
@@ -177,6 +258,13 @@ class QuizController extends Controller
         $data['points_complete'] = $data['points_complete'] ?? 8;
         $data['points_perfect_bonus'] = $data['points_perfect_bonus'] ?? 15;
         $data['points_high_score_bonus'] = $data['points_high_score_bonus'] ?? 10;
+
+        // Empty datetime-local fields can arrive oddly; normalize
+        foreach (['available_from', 'available_until', 'duration_minutes', 'max_attempts'] as $nullable) {
+            if (array_key_exists($nullable, $data) && $data[$nullable] === '') {
+                $data[$nullable] = null;
+            }
+        }
 
         return $data;
     }
