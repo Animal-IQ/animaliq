@@ -19,18 +19,21 @@ class NotificationService
      */
     public function broadcast(string $type, string $title, string $body, string $url, callable $mailer): void
     {
-        User::whereNotNull('email')->get()->each(function (User $user) use ($type, $title, $body, $url, $mailer) {
-            // In-app notification
-            Notification::create([
-                'user_id' => $user->id,
-                'type'    => $type,
-                'title'   => $title,
-                'body'    => $body,
-                'url'     => $url,
-            ]);
-
-            // Queued email
-            Mail::to($user->email)->queue($mailer($user));
+        User::whereNotNull('email')->orderBy('id')->chunkById(100, function ($users) use ($type, $title, $body, $url, $mailer) {
+            foreach ($users as $user) {
+                try {
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'type'    => $type,
+                        'title'   => $title,
+                        'body'    => $body,
+                        'url'     => $url,
+                    ]);
+                    Mail::to($user->email)->queue($mailer($user));
+                } catch (\Throwable $e) {
+                    \Log::error('Notification broadcast failed for user '.$user->id.': '.$e->getMessage());
+                }
+            }
         });
     }
 }

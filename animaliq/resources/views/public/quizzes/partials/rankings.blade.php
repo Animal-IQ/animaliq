@@ -24,7 +24,7 @@
                 @php
                     $u = $row->user;
                     $isMe = $highlightUserId && (int) $row->user_id === (int) $highlightUserId;
-                    $name = trim(($u->first_name ?? '') . ' ' . ($u->last_name ?? '')) ?: 'Player';
+                    $name = trim(($u?->first_name ?? '') . ' ' . ($u?->last_name ?? '')) ?: 'Player';
                 @endphp
                 <li class="theme-card rounded-xl px-4 py-3 flex flex-wrap items-center gap-3 {{ $isMe ? 'ring-2 ring-[var(--accent-orange)]' : '' }}">
                     <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0
@@ -36,7 +36,7 @@
                             <img src="{{ asset('storage/' . $u->profile_photo) }}" alt="" class="w-9 h-9 rounded-full object-cover shrink-0">
                         @else
                             <span class="w-9 h-9 rounded-full theme-bg-warm flex items-center justify-center text-sm font-semibold shrink-0">
-                                {{ strtoupper(substr($u->first_name ?? 'P', 0, 1)) }}
+                                {{ strtoupper(substr($u?->first_name ?? 'P', 0, 1)) }}
                             </span>
                         @endif
                         <div class="min-w-0">

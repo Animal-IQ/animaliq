@@ -156,6 +156,7 @@ class Quiz extends Model
         $attempts = $this->attempts()
             ->with('user:id,first_name,last_name,profile_photo')
             ->whereNotNull('user_id')
+            ->whereHas('user')
             ->whereIn('status', ['completed', 'timed_out'])
             ->orderByDesc('percentage')
             ->orderByDesc('score')

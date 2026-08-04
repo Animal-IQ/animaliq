@@ -34,9 +34,9 @@
                     @endif
                 </div>
                 <div class="flex flex-wrap gap-3 mt-4">
-                    <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="theme-link text-sm font-medium">Edit</a>
-                    <a href="{{ route('quizzes.show', $quiz) }}" class="theme-link text-sm font-medium" target="_blank">View public</a>
-                    <form method="POST" action="{{ route('admin.quizzes.destroy', $quiz) }}" onsubmit="return confirm('Delete this quiz?')">
+                    <a href="{{ route('admin.quizzes.edit', $quiz->id) }}" class="theme-link text-sm font-medium">Edit</a>
+                    <a href="{{ route('quizzes.show', $quiz->slug ?: $quiz->id) }}" class="theme-link text-sm font-medium" target="_blank">View public</a>
+                    <form method="POST" action="{{ route('admin.quizzes.destroy', $quiz->id) }}" onsubmit="return confirm('Delete this quiz?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="text-sm text-red-600">Delete</button>
                     </form>
