@@ -180,7 +180,10 @@ class QuizController extends Controller
             } catch (\Throwable $e) {
                 Log::error('Quiz question image upload failed: '.$e->getMessage());
 
-                return back()->withInput()->with('error', 'Question image could not be uploaded. Try a smaller JPG/PNG (max 4MB).');
+                return redirect()
+                    ->route('admin.quizzes.edit', $quiz->id)
+                    ->withInput()
+                    ->with('error', 'Question image could not be uploaded. Try a smaller JPG/PNG (max 4MB).');
             }
         }
         $data['quiz_id'] = $quiz->id;
@@ -189,7 +192,9 @@ class QuizController extends Controller
         unset($data['image']);
         QuizQuestion::create($data);
 
-        return back()->with('success', 'Question added.');
+        return redirect()
+            ->route('admin.quizzes.edit', $quiz->id)
+            ->with('success', 'Question added.');
     }
 
     public function updateQuestion(Request $request, Quiz $quiz, QuizQuestion $question)
@@ -202,7 +207,9 @@ class QuizController extends Controller
         $data['payload'] = $this->buildPayload($request, $data['type']);
         $question->update($data);
 
-        return back()->with('success', 'Question updated.');
+        return redirect()
+            ->route('admin.quizzes.edit', $quiz->id)
+            ->with('success', 'Question updated.');
     }
 
     public function destroyQuestion(Quiz $quiz, QuizQuestion $question)
@@ -210,7 +217,9 @@ class QuizController extends Controller
         abort_unless($question->quiz_id === $quiz->id, 404);
         $question->delete();
 
-        return back()->with('success', 'Question removed.');
+        return redirect()
+            ->route('admin.quizzes.edit', $quiz->id)
+            ->with('success', 'Question removed.');
     }
 
     public function reorderQuestions(Request $request, Quiz $quiz)

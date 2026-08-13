@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\ForumController as AdminForumController;
 use App\Http\Controllers\Admin\TeamMemberController as AdminTeamMemberController;
 use App\Http\Controllers\Admin\QuizController as AdminQuizController;
 use App\Http\Controllers\QuizController;
+use App\Models\Quiz;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -190,6 +191,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('podcasts', AdminPodcastController::class);
     Route::get('forum', [AdminForumController::class, 'index'])->name('forum.index');
     Route::delete('forum/{forum}', [AdminForumController::class, 'destroy'])->name('forum.destroy');
+    Route::get('quizzes/{quiz}/questions', function (Quiz $quiz) {
+        return redirect()->route('admin.quizzes.edit', $quiz->id);
+    })->name('quizzes.questions.index');
     Route::post('quizzes/{quiz}/questions', [AdminQuizController::class, 'storeQuestion'])->name('quizzes.questions.store');
     Route::put('quizzes/{quiz}/questions/{question}', [AdminQuizController::class, 'updateQuestion'])->name('quizzes.questions.update');
     Route::delete('quizzes/{quiz}/questions/{question}', [AdminQuizController::class, 'destroyQuestion'])->name('quizzes.questions.destroy');
