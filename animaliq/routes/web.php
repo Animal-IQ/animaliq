@@ -32,8 +32,8 @@ use App\Http\Controllers\Admin\AwarenessDayController as AdminAwarenessDayContro
 use App\Http\Controllers\Admin\PodcastController as AdminPodcastController;
 use App\Http\Controllers\Admin\ForumController as AdminForumController;
 use App\Http\Controllers\Admin\TeamMemberController as AdminTeamMemberController;
-use App\Http\Controllers\Admin\QuizController as AdminQuizController;
-use App\Http\Controllers\QuizController;
+use App\Http\Controllers\Admin\AdminQuizController;
+use App\Http\Controllers\PublicQuizController;
 use App\Models\Quiz;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -78,13 +78,13 @@ Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leade
 Route::get('/awareness-days', [AwarenessDaysController::class, 'index'])->name('awareness-days.index');
 Route::get('/podcasts', [PodcastsController::class, 'index'])->name('podcasts.index');
 
-Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes.index');
-Route::get('/quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
-Route::post('/quizzes/{quiz}/start', [QuizController::class, 'start'])->name('quizzes.start');
-Route::get('/quizzes/{quiz}/attempts/{attempt}', [QuizController::class, 'play'])->name('quizzes.play');
-Route::post('/quizzes/{quiz}/attempts/{attempt}/answer', [QuizController::class, 'answer'])->name('quizzes.answer');
-Route::post('/quizzes/{quiz}/attempts/{attempt}/finish', [QuizController::class, 'finish'])->name('quizzes.finish');
-Route::get('/quizzes/{quiz}/attempts/{attempt}/result', [QuizController::class, 'result'])->name('quizzes.result');
+Route::get('/quizzes', [PublicQuizController::class, 'index'])->name('quizzes.index');
+Route::get('/quizzes/{quiz}', [PublicQuizController::class, 'show'])->name('quizzes.show');
+Route::post('/quizzes/{quiz}/start', [PublicQuizController::class, 'start'])->name('quizzes.start');
+Route::get('/quizzes/{quiz}/attempts/{attempt}', [PublicQuizController::class, 'play'])->name('quizzes.play');
+Route::post('/quizzes/{quiz}/attempts/{attempt}/answer', [PublicQuizController::class, 'answer'])->name('quizzes.answer');
+Route::post('/quizzes/{quiz}/attempts/{attempt}/finish', [PublicQuizController::class, 'finish'])->name('quizzes.finish');
+Route::get('/quizzes/{quiz}/attempts/{attempt}/result', [PublicQuizController::class, 'result'])->name('quizzes.result');
 
 // Blog engagement (auth required)
 Route::middleware('auth')->group(function () {

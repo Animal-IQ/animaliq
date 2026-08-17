@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-class QuizController extends Controller
+class AdminQuizController extends Controller
 {
     public function index()
     {
