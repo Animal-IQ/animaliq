@@ -10,7 +10,7 @@ use App\Services\QuizScoringService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class QuizController extends Controller
+class PublicQuizController extends Controller
 {
     public function __construct(protected QuizScoringService $scoring) {}
 
